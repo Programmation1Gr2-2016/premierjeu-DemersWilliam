@@ -11,6 +11,8 @@ namespace Exercice01
     {
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
+        Rectangle fenetre;
+        GameObject heros;
 
         public Game1()
         {
@@ -27,6 +29,10 @@ namespace Exercice01
         protected override void Initialize()
         {
             // TODO: Add your initialization logic here
+            this.graphics.PreferredBackBufferWidth = graphics.GraphicsDevice.DisplayMode.Width;
+            this.graphics.PreferredBackBufferHeight = graphics.GraphicsDevice.DisplayMode.Height;
+
+            this.graphics.ToggleFullScreen();
 
             base.Initialize();
         }
@@ -37,6 +43,16 @@ namespace Exercice01
         /// </summary>
         protected override void LoadContent()
         {
+            fenetre = graphics.GraphicsDevice.Viewport.Bounds;
+            fenetre.Width = graphics.GraphicsDevice.DisplayMode.Width;
+            fenetre.Height = graphics.GraphicsDevice.DisplayMode.Height;
+
+
+            heros = new GameObject();
+            heros.estVivant = true;
+            heros.vitesse = 5;
+            heros.sprite = Content.Load<Texture2D>("Mario.png");
+            heros.position = heros.sprite.Bounds;
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
@@ -63,8 +79,45 @@ namespace Exercice01
                 Exit();
 
             // TODO: Add your update logic here
+            if (Keyboard.GetState().IsKeyDown(Keys.D))
+            {
+                heros.position.X += heros.vitesse;
+            }
+            if (Keyboard.GetState().IsKeyDown(Keys.S))
+            {
+                heros.position.Y += heros.vitesse;
+            }
+            if (Keyboard.GetState().IsKeyDown(Keys.A))
+            {
+                heros.position.X -= heros.vitesse;
+            }
+            if (Keyboard.GetState().IsKeyDown(Keys.W))
+            {
+                heros.position.Y -= heros.vitesse;
+            }
 
+            UpdateHeros();
             base.Update(gameTime);
+
+    }
+        protected void UpdateHeros()
+        {
+            if (heros.position.X < fenetre.Left)
+            {
+                heros.position.X = fenetre.Left;
+            }
+            if (heros.position.Y < fenetre.Top)
+            {
+                heros.position.Y = fenetre.Top;
+            }
+            if (heros.position.X + heros.sprite.Bounds.Width > fenetre.Right)
+            {
+                heros.position.X = fenetre.Right -heros.sprite.Bounds.Width;
+            }
+            if (heros.position.Y + heros.sprite.Bounds.Height > fenetre.Bottom)
+            {
+                heros.position.Y = fenetre.Bottom - heros.sprite.Bounds.Height;
+            }
         }
 
         /// <summary>
@@ -73,10 +126,13 @@ namespace Exercice01
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
+
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
             // TODO: Add your drawing code here
-
+            spriteBatch.Begin();
+            spriteBatch.Draw(heros.sprite, heros.position, Color.White);
+            spriteBatch.End();
             base.Draw(gameTime);
         }
     }
