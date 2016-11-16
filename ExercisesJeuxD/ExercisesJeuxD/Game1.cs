@@ -1,15 +1,21 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework.Audio;
+using Microsoft.Xna.Framework.Media;
 
 
-namespace Exercice01
+namespace ExercisesJeuxD
 {
     /// <summary>
     /// This is the main type for your game.
     /// </summary>
     public class Game1 : Game
     {
+        GameObject[] tableauEnnemy;
+        Song song;
+        SoundEffect son;
+        SoundEffectInstance bombe;
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
         Rectangle fenetre;
@@ -17,6 +23,7 @@ namespace Exercice01
         GameObject ennemy;
         GameObject projectile;
         Texture2D Background;
+        const int NBENNEMIS = 3;
 
         bool isLaunched = false;
 
@@ -38,6 +45,7 @@ namespace Exercice01
             // TODO: Add your initialization logic here
             this.graphics.PreferredBackBufferWidth = graphics.GraphicsDevice.DisplayMode.Width;
             this.graphics.PreferredBackBufferHeight = graphics.GraphicsDevice.DisplayMode.Height;
+            this.Window.Position = new Point(0, 0);
             this.graphics.ApplyChanges();
             //this.graphics.ToggleFullScreen();
 
@@ -66,8 +74,8 @@ namespace Exercice01
             ennemy.vitesse = 5;
             ennemy.sprite = Content.Load<Texture2D>("ennemie.png");
             ennemy.position = ennemy.sprite.Bounds;
-            ennemy.position.X=925;
-            ennemy.position.Y =0 ;
+            ennemy.position.X = 925;
+            ennemy.position.Y = 0;
             //projectile
             projectile = new GameObject();
             projectile.estVivant = true;
@@ -76,10 +84,26 @@ namespace Exercice01
             projectile.position = projectile.sprite.Bounds;
             //background
             Background = Content.Load<Texture2D>("Background.jpg");
+            //son
+            son = Content.Load<SoundEffect>("Sounds\\Bombe");
+            bombe = son.CreateInstance();
+            Song song = Content.Load<Song>("Musique\\Zelda");
+            MediaPlayer.IsRepeating = true;
+            MediaPlayer.Play(song);
+            tableauEnnemy = new GameObject[NBENNEMIS];
+            for(int i=0; i<NBENNEMIS; i++)
+            {
+                tableauEnnemy[i] = new GameObject();
+                tableauEnnemy[i].estVivant = true;
+                tableauEnnemy[i].vitesse = 5;
+                tableauEnnemy[i].sprite = Content.Load<Texture2D>("ennemie.png");
+                tableauEnnemy[i].position = ennemy.sprite.Bounds;
+                tableauEnnemy[i].position.X = i*300;
+                tableauEnnemy[i].position.Y = i*350;
+            }
 
 
-            
-            
+
 
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
@@ -126,7 +150,7 @@ namespace Exercice01
             {
                 heros.position.Y -= heros.vitesse;
             }
-            if(Keyboard.GetState().IsKeyDown(Keys.R))
+            if (Keyboard.GetState().IsKeyDown(Keys.R))
             {
                 heros.estVivant = true;
                 heros.position = heros.sprite.Bounds;
@@ -137,7 +161,7 @@ namespace Exercice01
             UpdateCollisions();
             base.Update(gameTime);
 
-    }
+        }
         protected void UpdateHeros()
         {
             if (heros.position.X < fenetre.Left)
@@ -150,7 +174,7 @@ namespace Exercice01
             }
             if (heros.position.X + heros.sprite.Bounds.Width > fenetre.Right)
             {
-                heros.position.X = fenetre.Right -heros.sprite.Bounds.Width;
+                heros.position.X = fenetre.Right - heros.sprite.Bounds.Width;
             }
             if (heros.position.Y + heros.sprite.Bounds.Height > fenetre.Bottom)
             {
@@ -160,13 +184,13 @@ namespace Exercice01
         protected void UpdateEnnemy()
         {
             ennemy.position.X += ennemy.vitesse;
-            if(ennemy.position.X +ennemy.sprite.Bounds.Width >fenetre.Right)
+            if (ennemy.position.X + ennemy.sprite.Bounds.Width > fenetre.Right)
             {
                 ennemy.position.X = fenetre.Right - ennemy.sprite.Bounds.Width;
                 ennemy.vitesse = -5;
-                ennemy.position.X +=ennemy.vitesse;
+                ennemy.position.X += ennemy.vitesse;
             }
-            if(ennemy.position.X <fenetre.Left)
+            if (ennemy.position.X < fenetre.Left)
             {
                 ennemy.position.X = fenetre.Left;
                 ennemy.vitesse = 5;
@@ -174,7 +198,7 @@ namespace Exercice01
         }
         protected void UpdateProjectile()
         {
-            if(isLaunched==true)
+            if (isLaunched == true)
             {
                 projectile.position.Y += projectile.vitesse;
             }
@@ -183,20 +207,23 @@ namespace Exercice01
                 projectile.position = ennemy.position;
                 isLaunched = true;
             }
-            if(projectile.position.Y +projectile.sprite.Bounds.Height > fenetre.Bottom)
+            if (projectile.position.Y + projectile.sprite.Bounds.Height > fenetre.Bottom)
             {
                 isLaunched = false;
             }
         }
         protected void UpdateCollisions()
         {
-            if(heros.position.Intersects(projectile.position))
+            if (heros.position.Intersects(projectile.position))
             {
                 heros.estVivant = false;
+                bombe.Play();
+                
             }
             if (heros.position.Intersects(ennemy.position))
             {
                 heros.estVivant = false;
+                bombe.Play();
             }
         }
 
@@ -212,12 +239,16 @@ namespace Exercice01
             // TODO: Add your drawing code here
             spriteBatch.Begin();
             spriteBatch.Draw(Background, new Rectangle(0, 0, graphics.GraphicsDevice.DisplayMode.Width, graphics.GraphicsDevice.DisplayMode.Height), Color.White);
-            if(heros.estVivant==true)
+            if (heros.estVivant == true)
             {
                 spriteBatch.Draw(heros.sprite, heros.position, Color.White);
             }
             spriteBatch.Draw(ennemy.sprite, ennemy.position, Color.White);
             spriteBatch.Draw(projectile.sprite, projectile.position, Color.White);
+            for(int i=0; i<NBENNEMIS; i++)
+            {
+                spriteBatch.Draw(tableauEnnemy[i].sprite, tableauEnnemy[i].position, Color.White);
+            }
             spriteBatch.End();
             base.Draw(gameTime);
         }

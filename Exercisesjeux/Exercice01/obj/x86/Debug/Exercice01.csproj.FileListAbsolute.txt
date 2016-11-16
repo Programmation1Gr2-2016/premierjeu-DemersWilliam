@@ -24,3 +24,6 @@ C:\Users\WillZ\Documents\Visual Studio 2015\Projects\premierjeu-DemersWilliam\Ex
 C:\Users\WillZ\Documents\Visual Studio 2015\Projects\premierjeu-DemersWilliam\Exercisesjeux\Exercice01\obj\x86\Debug\Exercice01.exe
 C:\Users\WillZ\Documents\Visual Studio 2015\Projects\premierjeu-DemersWilliam\Exercisesjeux\Exercice01\obj\x86\Debug\Exercice01.pdb
 C:\Users\WillZ\Documents\Visual Studio 2015\Projects\premierjeu-DemersWilliam\Exercisesjeux\Exercice01\bin\Windows\x86\Debug\Content\Mario.png
+C:\Users\WillZ\Documents\Visual Studio 2015\Projects\premierjeu-DemersWilliam\Exercisesjeux\Exercice01\bin\Windows\x86\Debug\Content\ennemie.png
+C:\Users\WillZ\Documents\Visual Studio 2015\Projects\premierjeu-DemersWilliam\Exercisesjeux\Exercice01\bin\Windows\x86\Debug\Content\Shuriken.png
+C:\Users\WillZ\Documents\Visual Studio 2015\Projects\premierjeu-DemersWilliam\Exercisesjeux\Exercice01\bin\Windows\x86\Debug\Content\Background.jpg
