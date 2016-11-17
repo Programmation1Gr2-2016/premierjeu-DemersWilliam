@@ -10,6 +10,7 @@ namespace ExercisesJeuxD
 {
     class GameObject
     {
+        public Vector2 direction;
         public Rectangle position;
         public int vitesse;
         public Texture2D sprite;

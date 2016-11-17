@@ -1,8 +1,14 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Media;
+
 
 
 namespace ExercisesJeuxD
@@ -12,6 +18,7 @@ namespace ExercisesJeuxD
     /// </summary>
     public class Game1 : Game
     {
+        Random r = new Random();
         GameObject[] tableauEnnemy;
         Song song;
         SoundEffect son;
@@ -24,6 +31,9 @@ namespace ExercisesJeuxD
         GameObject projectile;
         Texture2D Background;
         const int NBENNEMIS = 3;
+        int nombrEnnemis = 0;
+        SpriteFont survie;
+        int tempsSurvie = 0;
 
         bool isLaunched = false;
 
@@ -94,13 +104,18 @@ namespace ExercisesJeuxD
             for(int i=0; i<NBENNEMIS; i++)
             {
                 tableauEnnemy[i] = new GameObject();
-                tableauEnnemy[i].estVivant = true;
+                tableauEnnemy[i].estVivant = false;
                 tableauEnnemy[i].vitesse = 5;
                 tableauEnnemy[i].sprite = Content.Load<Texture2D>("ennemie.png");
                 tableauEnnemy[i].position = ennemy.sprite.Bounds;
                 tableauEnnemy[i].position.X = i*300;
                 tableauEnnemy[i].position.Y = i*350;
+                tableauEnnemy[i].direction.X = r.Next(-4, 5);
+                tableauEnnemy[i].direction.Y = r.Next(-4, 5);
             }
+            //temps de survie
+            survie = Content.Load<SpriteFont>("TempsDeVie");
+            
 
 
 
@@ -155,10 +170,16 @@ namespace ExercisesJeuxD
                 heros.estVivant = true;
                 heros.position = heros.sprite.Bounds;
             }
+            if (nombrEnnemis * 10 < gameTime.TotalGameTime.Seconds && nombrEnnemis <NBENNEMIS)
+            {
+                tableauEnnemy[nombrEnnemis].estVivant = true;
+                nombrEnnemis++;
+            }
+
             UpdateProjectile();
             UpdateEnnemy();
             UpdateHeros();
-            UpdateCollisions();
+            UpdateCollisions(gameTime.TotalGameTime.Seconds);
             base.Update(gameTime);
 
         }
@@ -195,6 +216,39 @@ namespace ExercisesJeuxD
                 ennemy.position.X = fenetre.Left;
                 ennemy.vitesse = 5;
             }
+            for (int i = 0; i < NBENNEMIS; i++)
+            {
+                tableauEnnemy[i].position.X += (int)tableauEnnemy[i].direction.X;
+                tableauEnnemy[i].position.Y += (int)tableauEnnemy[i].direction.Y;
+                //gauche
+                if(tableauEnnemy[i].position.X < fenetre.Left)
+                {
+                    //tableauEnnemy[i].position.X = fenetre.Left;
+                    tableauEnnemy[i].direction.X = - (int)tableauEnnemy[i].direction.X;
+
+                }
+                //haut
+                if(tableauEnnemy[i].position.Y < fenetre.Top)
+                {
+                    //tableauEnnemy[i].position.Y = fenetre.Top;
+                    tableauEnnemy[i].direction.Y = - (int)tableauEnnemy[i].direction.Y;
+                }
+                //droite
+                if(tableauEnnemy[i].position.X + tableauEnnemy[i].sprite.Bounds.Width >fenetre.Right)
+                {
+                    //tableauEnnemy[i].position.X = fenetre.Right - tableauEnnemy[i].sprite.Bounds.Width;
+                    tableauEnnemy[i].direction.X = - (int)tableauEnnemy[i].direction.X;
+
+                }
+                //bas
+                if (tableauEnnemy[i].position.Y + tableauEnnemy[i].sprite.Bounds.Height > fenetre.Bottom) 
+                {
+                    //tableauEnnemy[i].position.Y = fenetre.Bottom - tableauEnnemy[i].sprite.Bounds.Height;
+                    tableauEnnemy[i].direction.Y = - (int)tableauEnnemy[i].direction.Y;
+
+                }
+            }
+            
         }
         protected void UpdateProjectile()
         {
@@ -212,20 +266,32 @@ namespace ExercisesJeuxD
                 isLaunched = false;
             }
         }
-        protected void UpdateCollisions()
+        protected void UpdateCollisions(int timer)
         {
             if (heros.position.Intersects(projectile.position))
             {
                 heros.estVivant = false;
                 bombe.Play();
-                
+                tempsSurvie = timer;
+
             }
             if (heros.position.Intersects(ennemy.position))
             {
                 heros.estVivant = false;
                 bombe.Play();
+                tempsSurvie = timer;
+            }
+            for(int i=0; i<tableauEnnemy.Length; i++)
+            {
+                if(heros.position.Intersects(tableauEnnemy[i].position))
+                {
+                    heros.estVivant = false;
+                    bombe.Play();
+                    tempsSurvie = timer;
+                }
             }
         }
+
 
         /// <summary>
         /// This is called when the game should draw itself.
@@ -247,7 +313,14 @@ namespace ExercisesJeuxD
             spriteBatch.Draw(projectile.sprite, projectile.position, Color.White);
             for(int i=0; i<NBENNEMIS; i++)
             {
-                spriteBatch.Draw(tableauEnnemy[i].sprite, tableauEnnemy[i].position, Color.White);
+                if (tableauEnnemy[i].estVivant==true)
+                {
+                    spriteBatch.Draw(tableauEnnemy[i].sprite, tableauEnnemy[i].position, Color.White); 
+                }
+            }
+            if(heros.estVivant==false)
+            {
+              spriteBatch.DrawString(survie, "survie " + tempsSurvie + " secondes", new Vector2(0, 100), Color.White);
             }
             spriteBatch.End();
             base.Draw(gameTime);

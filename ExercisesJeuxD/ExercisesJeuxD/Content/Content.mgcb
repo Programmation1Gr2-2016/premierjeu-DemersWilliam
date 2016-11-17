@@ -25,3 +25,9 @@
 /processorParam:Quality=Best
 /build:Musique\Zelda.mp3
 
+#begin TempsDeVie.spritefont
+/importer:FontDescriptionImporter
+/processor:FontDescriptionProcessor
+/processorParam:TextureFormat=Compressed
+/build:TempsDeVie.spritefont
+
